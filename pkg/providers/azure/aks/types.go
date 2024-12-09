@@ -25,6 +25,10 @@ func NewCluster(aksCluster *armcontainerservice.ManagedCluster) (Cluster, error)
 		c.Tags[key] = *value
 	}
 
+	c.TagId = api.ReadTag(c.Tags, api.TAG_CLUSTER_ID)
+	c.TagDatatier = api.ReadTag(c.Tags, api.TAG_CLUSTER_STAGE)
+	c.TagGroup = api.ReadTag(c.Tags, api.TAG_CLUSTER_GROUP)
+
 	return c, nil
 }
 
@@ -62,5 +66,6 @@ func (c *Cluster) convert() (api.Cluster, error) {
 		subscriptionAccount,
 		managed,
 		c.Active,
+		c.Tags,
 	)
 }

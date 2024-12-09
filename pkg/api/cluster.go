@@ -45,7 +45,7 @@ func ClusterManaged(tags map[string]string) bool {
 		return false
 	}
 
-	if _, found := tags[TAG_DATATIER]; !found {
+	if _, found := tags[TAG_CLUSTER_STAGE]; !found {
 		return false
 	}
 

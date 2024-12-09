@@ -1,28 +1,22 @@
 package cluster
 
 import (
-	"fmt"
-	"strings"
-
 	"github.com/ylallemant/t8rctl/pkg/api"
-	"github.com/ylallemant/t8rctl/pkg/cluster/group"
-	"github.com/ylallemant/t8rctl/pkg/datatier"
 )
 
 var _ api.Cluster = &cluster{}
 
-func NewCluster(provider, rawName, id, group, datatier, region, section, version string, account api.Account, managed, active bool) (*cluster, error) {
+func NewCluster(provider, rawName, id, group, datatier, region, section, version string, account api.Account, managed, active bool, tags map[string]string) (*cluster, error) {
 	instance := new(cluster)
 
 	instance.CName = rawName
 	instance.managed = managed
+	instance.tags = tags
 
 	if managed {
-		group, datatier, id := SplitName(rawName)
-
-		instance.CGroup = group
-		instance.CDatatier = datatier
-		instance.CID = id
+		instance.CGroup = instance.Tags()[api.TAG_CLUSTER_GROUP]
+		instance.CDatatier = instance.Tags()[api.TAG_CLUSTER_STAGE]
+		instance.CID = instance.Tags()[api.TAG_CLUSTER_ID]
 	} else {
 		instance.CGroup = "none"
 		instance.CDatatier = "none"
@@ -55,11 +49,7 @@ type cluster struct {
 }
 
 func (c *cluster) Name() string {
-	if c.managed == false {
-		return c.CName
-	}
-
-	return fmt.Sprintf("%s-%s-%s", c.CGroup, c.CDatatier, c.CID)
+	return c.CName
 }
 
 func (c *cluster) Group() string {
@@ -104,46 +94,6 @@ func (c *cluster) Active() bool {
 
 func (c *cluster) Tags() map[string]string {
 	return c.tags
-}
-
-func SplitName(name string) (string, string, string) {
-	parts := strings.Split(name, "-")
-
-	if len(parts) == 3 {
-		return parts[0], parts[1], parts[2]
-	}
-
-	return "", "", ""
-}
-
-func IsManaged(name string) bool {
-	cgroup, cdatatier, _ := SplitName(name)
-
-	if cgroup == "" {
-		return false
-	}
-
-	groups, _ := group.List()
-	datatiers, _ := datatier.List()
-
-	foundGroup := false
-	foundDatatier := false
-
-	for _, group := range groups {
-		if cgroup == group.Name() {
-			foundGroup = true
-			break
-		}
-	}
-
-	for _, datatier := range datatiers {
-		if cdatatier == datatier.Name() {
-			foundDatatier = true
-			break
-		}
-	}
-
-	return foundGroup && foundDatatier
 }
 
 func FilterManaged(clusters []api.Cluster) []api.Cluster {

@@ -11,5 +11,6 @@ type Account interface {
 type AccountManager interface {
 	Provider() string
 	List() ([]Account, error)
+	Fetch(string) (Account, error)
 	FromId(string) (Account, error)
 }

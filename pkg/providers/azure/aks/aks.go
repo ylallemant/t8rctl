@@ -2,7 +2,6 @@ package aks
 
 import (
 	"context"
-	"fmt"
 	"path/filepath"
 	"sync"
 
@@ -14,7 +13,6 @@ import (
 	"github.com/ylallemant/t8rctl/pkg/command"
 	"github.com/ylallemant/t8rctl/pkg/global"
 	"github.com/ylallemant/t8rctl/pkg/providers/azure/credentials"
-	"github.com/ylallemant/t8rctl/pkg/providers/azure/vault"
 	"gopkg.in/yaml.v3"
 )
 
@@ -28,31 +26,12 @@ func New() (*AksClient, error) {
 		return Current, nil
 	}
 
+	var err error
+
 	Current = new(AksClient)
 
 	Current.activityCache = map[string]map[string]map[string]bool{}
 	Current.clients = make([]*armcontainerservice.ManagedClustersClient, 0)
-
-	hmgServicesClient, err := armcontainerservice.NewManagedClustersClient("15bc7278-fb36-46fc-9f9c-eea2b20bf9c9", credentials.Current, &arm.ClientOptions{})
-	if err != nil {
-		return nil, err
-	}
-
-	hmgInfraClient, err := armcontainerservice.NewManagedClustersClient("609aece9-8cbe-48d3-8ef5-510ad67699fa", credentials.Current, &arm.ClientOptions{})
-	if err != nil {
-		return nil, err
-	}
-
-	/*
-		hmgLivingdocsClient, err := armcontainerservice.NewManagedClustersClient("7d66e7f3-cfa2-4d28-9aa8-18a1e56572fe", credentials.Current, &arm.ClientOptions{})
-		if err != nil {
-			return nil, err
-		}
-	*/
-
-	Current.clients = append(Current.clients, hmgInfraClient)
-	Current.clients = append(Current.clients, hmgServicesClient)
-	// Current.clients = append(Current.clients, hmgLivingdocsClient)
 
 	Current.fsCache, err = cache.New(Current.CacheFile(), cache.DefaultTTL)
 	if err != nil {
@@ -159,10 +138,23 @@ func (i *AksClient) List(subs api.AccountManager) ([]api.Cluster, error) {
 		return i.cache, nil
 	}
 
+	subscriptions, err := subs.List()
+	if err != nil {
+		return i.cache, errors.Wrap(err, "could fetch account list")
+	}
+
+	for _, currSub := range subscriptions {
+		clusterClient, err := armcontainerservice.NewManagedClustersClient(currSub.Id(), credentials.Current, &arm.ClientOptions{})
+		if err != nil {
+			return nil, errors.Wrapf(err, "error fetching aks information for subscription \"%s\"", currSub.Name())
+		}
+
+		Current.clients = append(Current.clients, clusterClient)
+	}
+
 	clusters := make([]Cluster, 0)
 
 	for _, client := range i.clients {
-
 		pager := client.NewListPager(&armcontainerservice.ManagedClustersClientListOptions{})
 
 		for pager.More() {
@@ -172,6 +164,7 @@ func (i *AksClient) List(subs api.AccountManager) ([]api.Cluster, error) {
 			}
 
 			for _, azCluster := range response.Value {
+
 				azureCluster, err := NewCluster(azCluster)
 				if err != nil {
 					return nil, errors.Wrapf(err, "could not convert Azure Dataset to Azure cluster struct")
@@ -180,9 +173,6 @@ func (i *AksClient) List(subs api.AccountManager) ([]api.Cluster, error) {
 				managed := api.ClusterManaged(azureCluster.Tags)
 
 				if managed {
-					azureCluster.TagId = azureCluster.Tags[api.TAG_CLUSTER_ID]
-					azureCluster.TagDatatier = azureCluster.Tags[api.TAG_DATATIER]
-					azureCluster.TagGroup = azureCluster.Tags[api.TAG_CLUSTER_GROUP]
 					azureCluster.Active, err = i.CheckActivity(azureCluster.TagId, azureCluster.TagGroup, azureCluster.TagDatatier)
 					if err != nil {
 						return nil, errors.Wrapf(err, "failed to check activity status for cluster %s", azureCluster.Name)
@@ -245,10 +235,13 @@ func (i *AksClient) CheckActivity(id, group, datatier string) (bool, error) {
 		i.activityCache[group][datatier] = map[string]bool{}
 	}
 
-	activeId, err := vault.Current.Get("hmg-shared", fmt.Sprintf("cluster-%s-active-id-%s", group, datatier))
-	if err != nil {
-		return false, err
-	}
+	// TODO: make active flag dynamic again
+	// activeId, err := vault.Current.Get("hmg-shared", fmt.Sprintf("cluster-%s-active-id-%s", group, datatier))
+	// if err != nil {
+	// 	return false, err
+	// }
+
+	activeId := "green"
 
 	i.activityCache[group][datatier][id] = (id == activeId)
 	//fmt.Println("is debug logging enabled:", log.Debug().Enabled())
