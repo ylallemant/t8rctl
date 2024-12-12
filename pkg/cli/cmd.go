@@ -6,6 +6,7 @@ import (
 	"github.com/spf13/cobra"
 	"github.com/ylallemant/t8rctl/pkg/cli/cache"
 	"github.com/ylallemant/t8rctl/pkg/cli/cluster"
+	"github.com/ylallemant/t8rctl/pkg/cli/resource"
 	"github.com/ylallemant/t8rctl/pkg/cli/update"
 	"github.com/ylallemant/t8rctl/pkg/cli/version"
 )
@@ -24,6 +25,7 @@ var rootCmd = &cobra.Command{
 func init() {
 	rootCmd.AddCommand(cluster.Command())
 	rootCmd.AddCommand(cache.Command())
+	rootCmd.AddCommand(resource.Command())
 	rootCmd.AddCommand(update.Command())
 	rootCmd.AddCommand(version.Command())
 }
