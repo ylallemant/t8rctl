@@ -11,6 +11,7 @@ func NewOptions() *Options {
 }
 
 type Options struct {
-	DryRun bool
-	Force  bool
+	DryRun          bool
+	Force           bool
+	AllowPrerelease bool
 }

@@ -1,7 +1,6 @@
 package azure
 
 import (
-	"github.com/Azure/azure-sdk-for-go/sdk/azidentity"
 	"github.com/ylallemant/t8rctl/pkg/api"
 	"github.com/ylallemant/t8rctl/pkg/cache"
 	"github.com/ylallemant/t8rctl/pkg/providers/azure/aks"
@@ -44,7 +43,6 @@ func New() (*azure, error) {
 }
 
 type azure struct {
-	cred         *azidentity.DefaultAzureCredential
 	aks          *aks.AksClient
 	subscription *subscription.SubscriptionClient
 	accounts     api.AccountManager
