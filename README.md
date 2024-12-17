@@ -1,5 +1,7 @@
 # t8rctl
 
+[Documentation can be found here](./docs/content.md)
+
 ## Install
 
 ```sh

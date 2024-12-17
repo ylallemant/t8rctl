@@ -34,6 +34,18 @@ type providerManager struct {
 	mux   sync.RWMutex
 }
 
+func (i *providerManager) List() []api.Provider {
+	i.mux.RLock()
+	defer i.mux.RUnlock()
+	list := make([]api.Provider, 0)
+
+	for _, provider := range i.cache {
+		list = append(list, provider)
+	}
+
+	return list
+}
+
 func (i *providerManager) Get(name string) api.Provider {
 	i.mux.RLock()
 	defer i.mux.RUnlock()
