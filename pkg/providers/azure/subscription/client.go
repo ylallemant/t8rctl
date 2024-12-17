@@ -46,8 +46,6 @@ func New() (*SubscriptionClient, error) {
 		if err != nil {
 			return nil, errors.Wrapf(err, "could perform initial cache file read %s", Current.fsCache.Path())
 		}
-	} else {
-		fmt.Println("create cache")
 	}
 
 	return Current, nil
