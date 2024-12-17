@@ -13,7 +13,7 @@ repo="t8rctl"
 exe_name="t8rctl"
 githubUrl=""
 githubApiUrl=""
-version="0.0.1"
+version="0.0.3"
 separator="-"
 
 get_arch() {
@@ -82,7 +82,9 @@ os=$(get_os)
 arch=$(get_arch)
 file_name="${exe_name}${separator}${version}${separator}${os}${separator}${arch}.tar.gz" # the file name should be download
 downloaded_file="${downloadFolder}/${file_name}" # the file path should be download
-executable_folder="/usr/local/bin" # Eventually, the executable file will be placed here
+
+executable_folder="${HOME}/.local/bin" # Eventually, the executable file will be placed here
+mkdir -p $executable_folder
 
 # if version is empty
 if [ -z "$version" ]; then
