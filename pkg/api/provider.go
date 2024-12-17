@@ -14,4 +14,5 @@ type Provider interface {
 
 type ProviderManager interface {
 	Get(string) Provider
+	List() []Provider
 }

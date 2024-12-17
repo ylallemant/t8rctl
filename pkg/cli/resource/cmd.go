@@ -6,6 +6,7 @@ import (
 	"github.com/spf13/cobra"
 	"github.com/spf13/pflag"
 	"github.com/ylallemant/t8rctl/pkg/cli/resource/name"
+	"github.com/ylallemant/t8rctl/pkg/cli/resource/namespace"
 	"github.com/ylallemant/t8rctl/pkg/cli/resource/options"
 )
 
@@ -21,6 +22,7 @@ var rootCmd = &cobra.Command{
 }
 
 func init() {
+	rootCmd.AddCommand(namespace.Command())
 	rootCmd.AddCommand(name.Command())
 }
 

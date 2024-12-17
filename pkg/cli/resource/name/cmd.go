@@ -17,7 +17,7 @@ import (
 
 var rootCmd = &cobra.Command{
 	Use:   "name",
-	Short: "generate a resource name from environment information",
+	Short: "generates a resource name from environment information",
 	Long:  ``,
 	RunE: func(cmd *cobra.Command, args []string) error {
 		provider := runtime.Providers.Get(api.Azure)
