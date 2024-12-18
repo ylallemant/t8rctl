@@ -46,11 +46,11 @@ func ensureRelatedValues(options *api.EnvironmentContextOptions, enforceTopDown 
 func ensureStages(options *api.EnvironmentContextOptions, enforceTopDown bool) {
 	defaultValue := api.DefaultEnvironmentStage
 
-	if options.CellStage != "" && options.CellStage != api.DefaultEnvironmentStage {
+	if options.CellStage != "" && options.CellStage != api.DefaultEnvironmentNotSet && options.CellStage != api.DefaultEnvironmentStage {
 		defaultValue = options.CellStage
 	}
 
-	if options.ClusterStage != "" && options.ClusterStage != api.DefaultEnvironmentStage && !enforceTopDown {
+	if options.ClusterStage != "" && options.ClusterStage != api.DefaultEnvironmentNotSet && options.ClusterStage != api.DefaultEnvironmentStage && !enforceTopDown {
 		defaultValue = options.ClusterStage
 	}
 
@@ -70,11 +70,11 @@ func ensureStages(options *api.EnvironmentContextOptions, enforceTopDown bool) {
 func ensureRegions(options *api.EnvironmentContextOptions, enforceTopDown bool) {
 	defaultValue := api.DefaultEnvironmentRegion
 
-	if options.CellRegion != "" && options.CellRegion != api.DefaultEnvironmentRegion {
+	if options.CellRegion != "" && options.CellRegion != api.DefaultEnvironmentNotSet && options.CellRegion != api.DefaultEnvironmentRegion {
 		defaultValue = options.CellRegion
 	}
 
-	if options.ClusterRegion != "" && options.ClusterRegion != api.DefaultEnvironmentRegion && !enforceTopDown {
+	if options.ClusterRegion != "" && options.ClusterRegion != api.DefaultEnvironmentNotSet && options.ClusterRegion != api.DefaultEnvironmentRegion && !enforceTopDown {
 		defaultValue = options.CellStage
 	}
 
@@ -94,11 +94,11 @@ func ensureRegions(options *api.EnvironmentContextOptions, enforceTopDown bool) 
 func ensureTenants(options *api.EnvironmentContextOptions, enforceTopDown bool) {
 	defaultValue := api.DefaultEnvironmentTenant
 
-	if options.CellTenant != "" && options.CellTenant != api.DefaultEnvironmentTenant {
+	if options.CellTenant != "" && options.CellTenant != api.DefaultEnvironmentNotSet && options.CellTenant != api.DefaultEnvironmentTenant {
 		defaultValue = options.CellTenant
 	}
 
-	if options.ClusterTenant != "" && options.ClusterTenant != api.DefaultEnvironmentTenant && !enforceTopDown {
+	if options.ClusterTenant != "" && options.ClusterTenant != api.DefaultEnvironmentNotSet && options.ClusterTenant != api.DefaultEnvironmentTenant && !enforceTopDown {
 		defaultValue = options.ClusterTenant
 	}
 
