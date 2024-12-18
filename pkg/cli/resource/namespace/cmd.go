@@ -9,6 +9,7 @@ import (
 	"github.com/ylallemant/t8rctl/pkg/api"
 	"github.com/ylallemant/t8rctl/pkg/cli/resource/namespace/options"
 	globalOptions "github.com/ylallemant/t8rctl/pkg/cli/resource/options"
+	"github.com/ylallemant/t8rctl/pkg/environment"
 	"github.com/ylallemant/t8rctl/pkg/resource/namespace"
 	"github.com/ylallemant/t8rctl/pkg/runtime"
 )
@@ -28,22 +29,30 @@ var rootCmd = &cobra.Command{
 			return errors.Wrapf(err, "bad input")
 		}
 
-		env := &api.EnvironmentContext{
-			BranchName: options.Current.CurrentGitBranch,
-			IsBase:     options.Current.BaseGitBranch == options.Current.CurrentGitBranch,
-			Project:    globalOptions.Current.Project,
-			Datatier:   globalOptions.Current.CellStage,
-			Region:     options.Current.Region,
-			Tenant:     options.Current.Tenant,
+		envOptions := environment.OptionsFromEnvvars()
+
+		envOptions.GitBranchName = options.Current.CurrentGitBranch
+		envOptions.GitBaseBranchName = options.Current.BaseGitBranch
+
+		envOptions.Project = globalOptions.Current.Project
+		envOptions.CellStage = globalOptions.Current.CellStage
+		envOptions.CellRegion = options.Current.Region
+		envOptions.CellTenant = options.Current.Tenant
+
+		env := environment.FromOptions(envOptions, false)
+
+		if options.Current.OnlyVariance {
+			fmt.Println(namespace.Variance(env))
+			return nil
 		}
 
 		fmt.Println(namespace.Name(env))
-
 		return nil
 	},
 }
 
 func init() {
+	rootCmd.PersistentFlags().BoolVar(&options.Current.OnlyVariance, "variance", options.Current.OnlyVariance, "only returns the variable part of the name")
 	rootCmd.PersistentFlags().StringVar(&options.Current.CurrentGitBranch, "branch-current", options.Current.CurrentGitBranch, "current git branch")
 	rootCmd.PersistentFlags().StringVar(&options.Current.BaseGitBranch, "branch-base", options.Current.BaseGitBranch, "git branch used for base environments")
 	rootCmd.PersistentFlags().StringVar(&options.Current.Tenant, "tenant", options.Current.Tenant, "resource tenant name")

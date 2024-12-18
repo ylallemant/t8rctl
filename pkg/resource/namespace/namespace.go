@@ -10,13 +10,27 @@ import (
 )
 
 var (
-	branchPrefixRegexp = regexp.MustCompile(`^([a-zA-Z0-9-_]+)[/:].*`)
-	taskBranchRegexp   = regexp.MustCompile(`^([a-zA-Z0-9]{0,5}-\d+)[-_/].*`)
-	maxLength          = 25
+	branchPrefixRegexp     = regexp.MustCompile(`^([a-zA-Z0-9-_]+)[/:].*`)
+	taskBranchRegexp       = regexp.MustCompile(`^([a-zA-Z0-9]{0,5}-\d+)[-_/].*`)
+	namespaceNameMaxLength = 25
 )
 
-func Name(env *api.EnvironmentContext) string {
-	branchName := env.BranchName
+func Name(env api.EnvironmentContext) string {
+	variance := Variance(env)
+	output := fmt.Sprintf(
+		"%s%s%s%s%s",
+		env.Project(),
+		regionPart(env.StackRegion()),
+		tenantPart(env.StackTenant()),
+		utils.Separator,
+		variance,
+	)
+
+	return utils.Sanitise(output)
+}
+
+func Variance(env api.EnvironmentContext) string {
+	branchName := env.GitBranchName()
 	prefix, found := branchPrefix(branchName)
 
 	if found {
@@ -27,22 +41,16 @@ func Name(env *api.EnvironmentContext) string {
 
 	output := ""
 
-	if env.IsBase {
-		output = fmt.Sprintf(
-			"%s%s%s",
-			env.Project,
-			utils.Separator,
-			env.Datatier,
-		)
+	if env.IsGitBaseBranch() {
+		output = env.StackDatatier()
 	} else {
 		output = fmt.Sprintf(
-			"%s%sf%s%s",
-			env.Project,
-			utils.Separator,
-			utils.Separator,
+			"f-%s",
 			fromBranch(branchName),
 		)
 	}
+
+	maxLength := varianceMaxLength(env)
 
 	if len(output) > maxLength {
 		hash := utils.ResourceHash(output)
@@ -54,6 +62,37 @@ func Name(env *api.EnvironmentContext) string {
 	}
 
 	return utils.Sanitise(output)
+}
+
+func varianceMaxLength(env api.EnvironmentContext) int {
+	return namespaceNameMaxLength -
+		len(env.Project()) -
+		len(regionPart(env.StackRegion())) -
+		len(tenantPart(env.StackTenant()))
+}
+
+func regionPart(region string) string {
+	if region == "" || region == api.DefaultEnvironmentRegion {
+		return ""
+	}
+
+	return fmt.Sprintf(
+		"%s%s",
+		utils.Separator,
+		region,
+	)
+}
+
+func tenantPart(tenant string) string {
+	if tenant == "" || tenant == api.DefaultEnvironmentTenant {
+		return ""
+	}
+
+	return fmt.Sprintf(
+		"%s%s",
+		utils.Separator,
+		tenant,
+	)
 }
 
 func branchPrefix(branchName string) (string, bool) {

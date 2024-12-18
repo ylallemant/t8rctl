@@ -19,4 +19,5 @@ type Options struct {
 	BaseGitBranch    string
 	Tenant           string
 	Region           string
+	OnlyVariance     bool
 }
