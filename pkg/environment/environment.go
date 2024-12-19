@@ -9,26 +9,27 @@ func FromOptions(options *api.EnvironmentContextOptions, enforceTopDown bool) ap
 
 	ensureRelatedValues(options, enforceTopDown)
 
-	env.project = options.Project
-	env.cellProvider = options.CellProvider
-	env.cellId = options.CellId
-	env.cellStage = options.CellStage
-	env.cellRegion = options.CellRegion
-	env.cellTenant = options.CellTenant
-	env.clusterId = options.ClusterId
-	env.clusterStage = options.ClusterStage
-	env.clusterGroup = options.ClusterGroup
-	env.clusterRegion = options.ClusterRegion
-	env.clusterTenant = options.ClusterTenant
-	env.stack = options.Stack
-	env.stackDatatier = options.StackDatatier
-	env.stackRegion = options.StackRegion
-	env.stackTenant = options.StackTenant
-	env.gitRepository = options.GitRepository
-	env.gitBranchName = options.GitBranchName
-	env.gitBranchHash = options.GitBranchHash
-	env.gitBranchTag = options.GitBranchTag
-	env.isGitBaseBranch = options.GitBranchName == options.GitBaseBranchName
+	env.project = sanitiseValue(options.Project)
+	env.cellProvider = sanitiseValue(options.CellProvider)
+	env.cellId = sanitiseValue(options.CellId)
+	env.cellStage = sanitiseValue(options.CellStage)
+	env.cellRegion = sanitiseValue(options.CellRegion)
+	env.cellTenant = sanitiseValue(options.CellTenant)
+	env.clusterId = sanitiseValue(options.ClusterId)
+	env.clusterStage = sanitiseValue(options.ClusterStage)
+	env.clusterGroup = sanitiseValue(options.ClusterGroup)
+	env.clusterRegion = sanitiseValue(options.ClusterRegion)
+	env.clusterTenant = sanitiseValue(options.ClusterTenant)
+	env.stack = sanitiseValue(options.Stack)
+	env.stackDatatier = sanitiseValue(options.StackDatatier)
+	env.stackRegion = sanitiseValue(options.StackRegion)
+	env.stackTenant = sanitiseValue(options.StackTenant)
+	env.gitRepository = sanitiseValue(options.GitRepository)
+	env.gitBranchName = sanitiseValue(options.GitBranchName)
+	env.gitBaseBranchName = sanitiseValue(options.GitBaseBranchName)
+	env.gitBranchHash = sanitiseValue(options.GitBranchHash)
+	env.gitBranchTag = sanitiseValue(options.GitBranchTag)
+	env.isGitBaseBranch = env.gitBranchName == env.gitBaseBranchName
 
 	return env
 }
@@ -75,7 +76,7 @@ func ensureRegions(options *api.EnvironmentContextOptions, enforceTopDown bool) 
 	}
 
 	if options.ClusterRegion != "" && options.ClusterRegion != api.DefaultEnvironmentNotSet && options.ClusterRegion != api.DefaultEnvironmentRegion && !enforceTopDown {
-		defaultValue = options.CellStage
+		defaultValue = options.ClusterRegion
 	}
 
 	if options.CellRegion == "" {

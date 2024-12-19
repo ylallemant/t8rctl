@@ -4,31 +4,28 @@ import "github.com/ylallemant/t8rctl/pkg/api"
 
 var _ api.EnvironmentContext = &environmentContext{}
 
-func New() api.EnvironmentContext {
-	return nil
-}
-
 type environmentContext struct {
-	project         string
-	cellProvider    string
-	cellId          string
-	cellStage       string
-	cellRegion      string
-	cellTenant      string
-	clusterId       string
-	clusterStage    string
-	clusterGroup    string
-	clusterRegion   string
-	clusterTenant   string
-	stack           string
-	stackDatatier   string
-	stackRegion     string
-	stackTenant     string
-	gitRepository   string
-	gitBranchName   string
-	gitBranchHash   string
-	gitBranchTag    string
-	isGitBaseBranch bool
+	project           string
+	cellProvider      string
+	cellId            string
+	cellStage         string
+	cellRegion        string
+	cellTenant        string
+	clusterId         string
+	clusterStage      string
+	clusterGroup      string
+	clusterRegion     string
+	clusterTenant     string
+	stack             string
+	stackDatatier     string
+	stackRegion       string
+	stackTenant       string
+	gitRepository     string
+	gitBranchName     string
+	gitBaseBranchName string
+	gitBranchHash     string
+	gitBranchTag      string
+	isGitBaseBranch   bool
 }
 
 func (i *environmentContext) Project() string {
@@ -97,6 +94,10 @@ func (i *environmentContext) GitRepository() string {
 
 func (i *environmentContext) GitBranchName() string {
 	return i.gitBranchName
+}
+
+func (i *environmentContext) GitBaseBranchName() string {
+	return i.gitBaseBranchName
 }
 
 func (i *environmentContext) GitBranchHash() string {

@@ -2,7 +2,6 @@ package environment
 
 import (
 	"os"
-	"strings"
 
 	"github.com/ylallemant/t8rctl/pkg/api"
 )
@@ -13,6 +12,11 @@ func OptionsFromEnvvars() *api.EnvironmentContextOptions {
 	value, found := os.LookupEnv(api.ENVAR_PLATFORM_PROJECT)
 	if found {
 		options.Project = sanitiseValue(value)
+	}
+
+	value, found = os.LookupEnv(api.ENVAR_PLATFORM_CELL_PROVIDER)
+	if found {
+		options.CellProvider = sanitiseValue(value)
 	}
 
 	value, found = os.LookupEnv(api.ENVAR_PLATFORM_CELL_ID)
@@ -80,6 +84,11 @@ func OptionsFromEnvvars() *api.EnvironmentContextOptions {
 		options.StackTenant = sanitiseValue(value)
 	}
 
+	value, found = os.LookupEnv(api.ENVAR_GIT_REPOSITORY)
+	if found {
+		options.GitRepository = sanitiseValue(value)
+	}
+
 	value, found = os.LookupEnv(api.ENVAR_GIT_BRANCH_NAME)
 	if found {
 		options.GitBranchName = sanitiseValue(value)
@@ -101,10 +110,4 @@ func OptionsFromEnvvars() *api.EnvironmentContextOptions {
 	}
 
 	return options
-}
-
-func sanitiseValue(value string) string {
-	value = strings.TrimSpace(value)
-	value = strings.ToLower(value)
-	return value
 }

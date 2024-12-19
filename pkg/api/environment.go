@@ -2,6 +2,7 @@ package api
 
 const (
 	ENVAR_PLATFORM_PROJECT        = "PLATFORM_PROJECT"
+	ENVAR_PLATFORM_CELL_PROVIDER  = "PLATFORM_CELL_PROVIDER"
 	ENVAR_PLATFORM_CELL_ID        = "PLATFORM_CELL_ID"
 	ENVAR_PLATFORM_CELL_STAGE     = "PLATFORM_CELL_STAGE"
 	ENVAR_PLATFORM_CELL_REGION    = "PLATFORM_CELL_REGION"
@@ -15,6 +16,7 @@ const (
 	ENVAR_PLATFORM_STACK_DATATIER = "PLATFORM_STACK_DATATIER"
 	ENVAR_PLATFORM_STACK_REGION   = "PLATFORM_STACK_REGION"
 	ENVAR_PLATFORM_STACK_TENANT   = "PLATFORM_STACK_TENANT"
+	ENVAR_GIT_REPOSITORY          = "GIT_REPOSITORY"
 	ENVAR_GIT_BRANCH_NAME         = "GIT_BRANCH_NAME"
 	ENVAR_GIT_BRANCH_HASH         = "GIT_BRANCH_HASH"
 	ENVAR_GIT_BRANCH_TAG          = "GIT_BRANCH_TAG"
@@ -30,8 +32,8 @@ const (
 
 type EnvironmentContextOptions struct {
 	Project           string
-	CellId            string
 	CellProvider      string
+	CellId            string
 	CellStage         string
 	CellRegion        string
 	CellTenant        string
@@ -69,6 +71,7 @@ type EnvironmentContext interface {
 	StackTenant() string
 	GitRepository() string
 	GitBranchName() string
+	GitBaseBranchName() string
 	GitBranchHash() string
 	GitBranchTag() string
 	IsGitBaseBranch() bool

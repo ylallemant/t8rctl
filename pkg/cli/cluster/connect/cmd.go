@@ -25,7 +25,7 @@ var rootCmd = &cobra.Command{
 
 		err := provider.PurgeCaches()
 		if err != nil {
-			return errors.Wrapf(err, "provider \"%s\" could not purge its caches")
+			return errors.Wrapf(err, "provider \"%s\" could not purge its caches", provider.Type())
 		}
 
 		filter := filterFromFlags()
