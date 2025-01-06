@@ -115,6 +115,15 @@ func (i *SubscriptionClient) updateCache(subscriptions []Subscription) error {
 	return nil
 }
 
+func (i *SubscriptionClient) PurgeCache() error {
+	i.mux.Lock()
+	defer i.mux.Unlock()
+
+	i.cache = make([]api.Account, 0)
+
+	return nil
+}
+
 func (i *SubscriptionClient) Provider() string {
 	return api.Azure
 }

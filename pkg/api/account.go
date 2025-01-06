@@ -13,4 +13,5 @@ type AccountManager interface {
 	List() ([]Account, error)
 	Fetch(string) (Account, error)
 	FromId(string) (Account, error)
+	PurgeCache() error
 }

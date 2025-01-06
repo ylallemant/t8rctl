@@ -118,6 +118,11 @@ func (i *AksClient) Provider() string {
 }
 
 func (i *AksClient) PurgeCache() error {
+	i.mux.Lock()
+	defer i.mux.Unlock()
+
+	i.cache = make([]api.Cluster, 0)
+
 	return nil
 }
 
