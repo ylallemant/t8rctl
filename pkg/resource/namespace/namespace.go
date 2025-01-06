@@ -5,36 +5,58 @@ import (
 	"regexp"
 	"strings"
 
+	"github.com/pkg/errors"
 	"github.com/ylallemant/t8rctl/pkg/api"
 	"github.com/ylallemant/t8rctl/pkg/resource/utils"
 )
 
+const (
+	ErrorNameGeneration     = "failed to generage namespace name"
+	ErrorVarianceGeneration = "failed to generage variance"
+)
+
 var (
-	branchPrefixRegexp     = regexp.MustCompile(`^([a-zA-Z0-9-_]+)[/:].*`)
-	taskBranchRegexp       = regexp.MustCompile(`^([a-zA-Z0-9]{0,5}-\d+)[-_/].*`)
+	branchPrefixRegexp     = regexp.MustCompile(`^([a-zA-Z0-9-_]+)\s*[/:].*`)
+	taskBranchRegexp       = regexp.MustCompile(`^([a-zA-Z]{0,5})[-]{0,1}(\d+)-.*`)
 	namespaceNameMaxLength = 25
 )
 
-func Name(env api.EnvironmentContext) string {
-	variance := Variance(env)
+func Name(env api.EnvironmentContext) (string, error) {
+	variance, err := Variance(env)
+	if err != nil {
+		return "", errors.Wrap(err, ErrorNameGeneration)
+	}
+
+	err = validateNameOptions(env)
+	if err != nil {
+		return "", errors.Wrap(err, ErrorNameGeneration)
+	}
+
 	output := fmt.Sprintf(
 		"%s%s%s%s%s",
-		env.Project(),
+		env.Stack(),
 		regionPart(env.StackRegion()),
 		tenantPart(env.StackTenant()),
 		utils.Separator,
 		variance,
 	)
 
-	return utils.Sanitise(output)
+	return utils.Sanitise(output), nil
 }
 
-func Variance(env api.EnvironmentContext) string {
-	branchName := env.GitBranchName()
-	prefix, found := branchPrefix(branchName)
+func Variance(env api.EnvironmentContext) (string, error) {
+	err := validateVarianceOptions(env)
+	if err != nil {
+		return "", errors.Wrap(err, ErrorVarianceGeneration)
+	}
 
+	variancePrefix := "f"
+	branchName := env.GitBranchName()
+
+	prefix, found := branchPrefix(branchName)
 	if found {
 		branchName = removePrefix(branchName, prefix)
+		variancePrefix = prefix[:1]
 	}
 
 	branchName = utils.Sanitise(branchName)
@@ -45,7 +67,8 @@ func Variance(env api.EnvironmentContext) string {
 		output = env.StackDatatier()
 	} else {
 		output = fmt.Sprintf(
-			"f-%s",
+			"%s-%s",
+			variancePrefix,
 			fromBranch(branchName),
 		)
 	}
@@ -61,12 +84,12 @@ func Variance(env api.EnvironmentContext) string {
 		)
 	}
 
-	return utils.Sanitise(output)
+	return utils.Sanitise(output), nil
 }
 
 func varianceMaxLength(env api.EnvironmentContext) int {
 	return namespaceNameMaxLength -
-		len(env.Project()) -
+		len(env.Stack()) -
 		len(regionPart(env.StackRegion())) -
 		len(tenantPart(env.StackTenant()))
 }
@@ -119,7 +142,12 @@ func removePrefix(branchName, prefix string) string {
 func taskReference(branchName string) (string, bool) {
 	matches := taskBranchRegexp.FindStringSubmatch(branchName)
 	if len(matches) > 0 {
-		return matches[1], true
+		return fmt.Sprintf(
+			"%s%s%s",
+			matches[1],
+			utils.Separator,
+			matches[2],
+		), true
 	}
 
 	return "", false
