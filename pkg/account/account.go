@@ -23,7 +23,7 @@ type account struct {
 }
 
 func (i *account) Provider() string {
-	return api.Azure
+	return i.SProvider
 }
 
 func (i *account) Id() string {

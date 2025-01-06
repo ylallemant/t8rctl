@@ -20,9 +20,9 @@ var rootCmd = &cobra.Command{
 	Short: "generates a resource name from environment information",
 	Long:  ``,
 	RunE: func(cmd *cobra.Command, args []string) error {
-		provider := runtime.Providers.Get(api.Azure)
+		provider := runtime.Providers.Get(globalOptions.Current.Provider)
 		if provider == nil {
-			return fmt.Errorf("provider \"%s\" not existing", api.Azure)
+			return fmt.Errorf("provider \"%s\" not existing", provider.Type())
 		}
 
 		err := validate()

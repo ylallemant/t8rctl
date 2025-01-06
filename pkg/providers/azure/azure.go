@@ -1,6 +1,7 @@
 package azure
 
 import (
+	"github.com/pkg/errors"
 	"github.com/ylallemant/t8rctl/pkg/api"
 	"github.com/ylallemant/t8rctl/pkg/cache"
 	"github.com/ylallemant/t8rctl/pkg/providers/azure/aks"
@@ -67,5 +68,20 @@ func (i *azure) Vaults() api.VaultManager {
 }
 
 func (i *azure) PurgeCaches() error {
-	return cache.CurrentManager.Purge(api.Azure)
+	err := i.accounts.PurgeCache()
+	if err != nil {
+		return errors.Wrapf(err, "failed to purge account cache for provider %s", i.Type())
+	}
+
+	err = i.clusters.PurgeCache()
+	if err != nil {
+		return errors.Wrapf(err, "failed to purge cluster cache for provider %s", i.Type())
+	}
+
+	err = cache.CurrentManager.Purge(api.Azure)
+	if err != nil {
+		return errors.Wrapf(err, "failed to purge file caches for provider %s", i.Type())
+	}
+
+	return nil
 }

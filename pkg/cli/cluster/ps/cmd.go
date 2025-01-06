@@ -20,9 +20,9 @@ var rootCmd = &cobra.Command{
 	Short: "list running clusters",
 	Long:  ``,
 	RunE: func(cmd *cobra.Command, args []string) error {
-		provider := runtime.Providers.Get(api.Azure)
+		provider := runtime.Providers.Get(globalOptions.Current.Provider)
 		if provider == nil {
-			return fmt.Errorf("provider \"%s\" not existing", api.Azure)
+			return fmt.Errorf("provider \"%s\" not existing", provider.Type())
 		}
 
 		filter := filterFromFlags()

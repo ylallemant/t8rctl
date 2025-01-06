@@ -25,6 +25,7 @@ type ClusterManager interface {
 	List(AccountManager) ([]Cluster, error)
 	Connect(Cluster, string) error
 	CheckActivity(id, group, datatier string) (bool, error)
+	PurgeCache() error
 }
 
 type ClusterFilter struct {
