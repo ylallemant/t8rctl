@@ -24,7 +24,7 @@ func init() {
 		panic(err)
 	}
 
-	manager.cache[api.Azure] = azureProvider
+	manager.cache[azureProvider.Type()] = azureProvider
 
 	Providers = manager
 }

@@ -20,9 +20,9 @@ var rootCmd = &cobra.Command{
 			return err
 		}
 
-		provider := runtime.Providers.Get(api.Azure)
+		provider := runtime.Providers.Get(options.Current.Provider)
 		if provider == nil {
-			return fmt.Errorf("provider \"%s\" not existing", api.Azure)
+			return fmt.Errorf("provider \"%s\" not existing", provider.Type())
 		}
 
 		filter := filterFromFlags()
@@ -43,11 +43,11 @@ var rootCmd = &cobra.Command{
 		}
 
 		if len(filteredClusters) == 0 {
-			return fmt.Errorf("no cluster was found with filter: %s => %s-%s", api.Azure, options.Current.Group, options.Current.StackDatatier)
+			return fmt.Errorf("no cluster was found with filter: %s => %s-%s", provider.Type(), options.Current.Group, options.Current.StackDatatier)
 		}
 
 		if len(filteredClusters) > 1 {
-			return fmt.Errorf("filter returned multiple clusters (%d): %s => %s-%s", len(filteredClusters), api.Azure, options.Current.Group, options.Current.StackDatatier)
+			return fmt.Errorf("filter returned multiple clusters (%d): %s => %s-%s", len(filteredClusters), provider.Type(), options.Current.Group, options.Current.StackDatatier)
 		}
 
 		fmt.Println(filteredClusters[0].Datatier())
@@ -57,7 +57,7 @@ var rootCmd = &cobra.Command{
 }
 
 func validate() error {
-	if api.Azure == "" {
+	if options.Current.Provider == "" {
 		return fmt.Errorf("cloud provider was not specified")
 	}
 
