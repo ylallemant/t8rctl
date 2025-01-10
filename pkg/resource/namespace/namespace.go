@@ -95,7 +95,7 @@ func varianceMaxLength(env api.EnvironmentContext) int {
 }
 
 func regionPart(region string) string {
-	if region == "" || region == api.DefaultEnvironmentRegion {
+	if region == "" || region == api.None || region == api.DefaultEnvironmentRegion {
 		return ""
 	}
 
@@ -107,7 +107,7 @@ func regionPart(region string) string {
 }
 
 func tenantPart(tenant string) string {
-	if tenant == "" || tenant == api.DefaultEnvironmentTenant {
+	if tenant == "" || tenant == api.None || tenant == api.DefaultEnvironmentTenant {
 		return ""
 	}
 

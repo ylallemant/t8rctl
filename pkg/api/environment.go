@@ -22,10 +22,10 @@ const (
 	ENVAR_GIT_BRANCH_TAG          = "GIT_BRANCH_TAG"
 	ENVAR_GIT_BASE_BRANCH_NAME    = "GIT_BASE_BRANCH_NAME"
 
-	DefaultEnvironmentStage  = "all"
-	DefaultEnvironmentRegion = "global"
-	DefaultEnvironmentTenant = "shared"
-	DefaultEnvironmentNotSet = "none"
+	DefaultEnvironmentStage  = All
+	DefaultEnvironmentRegion = DefaultRegion
+	DefaultEnvironmentTenant = DefaultTenant
+	DefaultEnvironmentNotSet = None
 
 	DefaultGitBaseBranchName = "main"
 )

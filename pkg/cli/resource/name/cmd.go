@@ -74,22 +74,22 @@ func coreName() string {
 
 	tenant := ""
 
-	if globalOptions.Current.CellTenant != "" && globalOptions.Current.CellTenant != "shared" {
-		tenant = fmt.Sprintf("-%s", globalOptions.Current.CellTenant)
+	if options.Current.Tenant != "" && options.Current.Tenant != api.None && options.Current.Tenant != api.DefaultTenant {
+		tenant = fmt.Sprintf("-%s", options.Current.Tenant)
 	}
 
-	if tenant == "" && options.Current.Tenant != "" && options.Current.Tenant != "none" {
-		tenant = fmt.Sprintf("-%s", options.Current.Tenant)
+	if tenant == "" && globalOptions.Current.CellTenant != "" && globalOptions.Current.CellTenant != api.None && globalOptions.Current.CellTenant != api.DefaultTenant {
+		tenant = fmt.Sprintf("-%s", globalOptions.Current.CellTenant)
 	}
 
 	region := ""
 
-	if globalOptions.Current.CellRegion != "" && globalOptions.Current.CellRegion != "global" {
-		region = fmt.Sprintf("-%s", globalOptions.Current.CellRegion)
+	if options.Current.Region != "" && options.Current.Region != api.None && options.Current.Region != api.DefaultRegion {
+		region = fmt.Sprintf("-%s", options.Current.Region)
 	}
 
-	if region == "" && options.Current.Region != "" && options.Current.Region != "none" {
-		region = fmt.Sprintf("-%s", options.Current.Region)
+	if region == "" && globalOptions.Current.CellRegion != "" && globalOptions.Current.CellRegion != api.None && globalOptions.Current.CellRegion != api.DefaultRegion {
+		region = fmt.Sprintf("-%s", globalOptions.Current.CellRegion)
 	}
 
 	core := strings.ToLower(

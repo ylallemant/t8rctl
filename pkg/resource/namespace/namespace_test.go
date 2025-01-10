@@ -33,7 +33,7 @@ func TestVariance(t *testing.T) {
 			input: &api.EnvironmentContextOptions{
 				GitBranchName: api.DefaultGitBaseBranchName,
 			},
-			expected: "all",
+			expected: api.All,
 		},
 		{
 			name: "vaiance with custom datatier",
@@ -200,6 +200,17 @@ func TestName(t *testing.T) {
 				StackDatatier: "dev",
 			},
 			expected: "ecom-emea-myshop-dev",
+		},
+		{
+			name: "name with custom region and tenant set to none",
+			input: &api.EnvironmentContextOptions{
+				GitBranchName: api.DefaultGitBaseBranchName,
+				StackTenant:   "none",
+				StackRegion:   "none",
+				Stack:         "ecom",
+				StackDatatier: "dev",
+			},
+			expected: "ecom-dev",
 		},
 		{
 			name: "name from feature branch",

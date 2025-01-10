@@ -18,9 +18,9 @@ func NewCluster(provider, rawName, id, group, datatier, region, section, version
 		instance.CDatatier = instance.Tags()[api.TAG_CLUSTER_STAGE]
 		instance.CID = instance.Tags()[api.TAG_CLUSTER_ID]
 	} else {
-		instance.CGroup = "none"
-		instance.CDatatier = "none"
-		instance.CID = "none"
+		instance.CGroup = api.None
+		instance.CDatatier = api.None
+		instance.CID = api.None
 	}
 
 	instance.CProvider = provider

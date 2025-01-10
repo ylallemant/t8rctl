@@ -1,7 +1,12 @@
 package api
 
+const (
+	None = "none"
+	All  = "all"
+)
+
 var (
-	TAG_DEFAULT_VALUE = "none"
+	TAG_DEFAULT_VALUE = None
 	TAG_CLUSTER_GROUP = "cluster_group"
 	TAG_CLUSTER_ID    = "cluster_id"
 	TAG_CLUSTER_STAGE = "cluster_stage"

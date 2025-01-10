@@ -1,5 +1,7 @@
 package options
 
+import "github.com/ylallemant/t8rctl/pkg/api"
+
 var (
 	Domain  = "t8rctl"
 	Current = NewOptions()
@@ -8,8 +10,8 @@ var (
 func NewOptions() *Options {
 	options := new(Options)
 
-	options.Tenant = "none"
-	options.Region = "none"
+	options.Tenant = api.DefaultTenant
+	options.Region = api.DefaultRegion
 	options.Short = false
 	options.Hash = false
 	options.Core = false
