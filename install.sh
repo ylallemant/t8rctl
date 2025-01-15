@@ -13,7 +13,7 @@ repo="t8rctl"
 exe_name="t8rctl"
 githubUrl=""
 githubApiUrl=""
-version="0.0.3"
+version="0.0.7"
 separator="-"
 
 get_arch() {
