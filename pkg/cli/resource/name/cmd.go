@@ -1,17 +1,15 @@
 package name
 
 import (
-	"crypto/sha1"
 	"fmt"
-	"io"
-	"strings"
 
 	"github.com/pkg/errors"
 	"github.com/spf13/cobra"
 	"github.com/spf13/pflag"
-	"github.com/ylallemant/t8rctl/pkg/api"
 	"github.com/ylallemant/t8rctl/pkg/cli/resource/name/options"
 	globalOptions "github.com/ylallemant/t8rctl/pkg/cli/resource/options"
+	"github.com/ylallemant/t8rctl/pkg/environment"
+	resourceName "github.com/ylallemant/t8rctl/pkg/resource/name"
 	"github.com/ylallemant/t8rctl/pkg/runtime"
 )
 
@@ -25,23 +23,27 @@ var rootCmd = &cobra.Command{
 			return fmt.Errorf("provider \"%s\" not existing", provider.Type())
 		}
 
-		err := validate()
+		err := resourceName.Validate()
 		if err != nil {
 			return errors.Wrapf(err, "bad input")
 		}
 
-		output := coreName()
+		envOptions := environment.OptionsFromEnvvars()
+
+		env := environment.FromOptions(envOptions, false)
+
+		output := resourceName.CoreName(env)
 
 		if options.Current.Short {
-			output = shortName()
+			output = resourceName.ShortName(env)
 		}
 
 		if options.Current.Hash {
-			output = coreHash()
+			output = resourceName.CoreHash(env)
 		}
 
 		if options.Current.Caf {
-			output = cafName()
+			output = resourceName.CafName(env)
 		}
 
 		fmt.Println(output)
@@ -65,102 +67,4 @@ func init() {
 func Command() *cobra.Command {
 	pflag.CommandLine.AddFlagSet(rootCmd.Flags())
 	return rootCmd
-}
-
-func coreName() string {
-	if options.Current.Static != "" {
-		return strings.ToLower(options.Current.Static)
-	}
-
-	tenant := ""
-
-	if options.Current.Tenant != "" && options.Current.Tenant != api.None && options.Current.Tenant != api.DefaultTenant {
-		tenant = fmt.Sprintf("-%s", options.Current.Tenant)
-	}
-
-	if tenant == "" && globalOptions.Current.CellTenant != "" && globalOptions.Current.CellTenant != api.None && globalOptions.Current.CellTenant != api.DefaultTenant {
-		tenant = fmt.Sprintf("-%s", globalOptions.Current.CellTenant)
-	}
-
-	region := ""
-
-	if options.Current.Region != "" && options.Current.Region != api.None && options.Current.Region != api.DefaultRegion {
-		region = fmt.Sprintf("-%s", options.Current.Region)
-	}
-
-	if region == "" && globalOptions.Current.CellRegion != "" && globalOptions.Current.CellRegion != api.None && globalOptions.Current.CellRegion != api.DefaultRegion {
-		region = fmt.Sprintf("-%s", globalOptions.Current.CellRegion)
-	}
-
-	core := strings.ToLower(
-		fmt.Sprintf(
-			"%s%s-%s%s-%s",
-			globalOptions.Current.Project,
-			region,
-			globalOptions.Current.CellStage,
-			tenant,
-			options.Current.Name,
-		),
-	)
-
-	return core
-}
-
-func coreHash() string {
-	hasher := sha1.New()
-	io.WriteString(hasher, coreName())
-	hash := fmt.Sprintf("%x", hasher.Sum(nil))
-
-	return hash[:5]
-}
-
-func shortName() string {
-	core := coreName()
-	info := typeInfo(options.Current.Type)
-	hash := coreHash()
-
-	maxCoreLengh := 24 - len(info.Prefix) - len(globalOptions.Current.CellId) - len(hash)
-
-	sanitisedCore := sanitiseCore(core)
-
-	if len(sanitisedCore) < maxCoreLengh {
-		return fmt.Sprintf(
-			"%s%s%s",
-			info.Prefix,
-			sanitisedCore,
-			globalOptions.Current.CellId,
-		)
-	}
-
-	return fmt.Sprintf(
-		"%s%s%s%s",
-		info.Prefix,
-		sanitisedCore[:maxCoreLengh],
-		hash,
-		globalOptions.Current.CellId,
-	)
-}
-
-func cafName() string {
-	core := coreName()
-	info := typeInfo(options.Current.Type)
-
-	if info.ShortFormat {
-		return shortName()
-	}
-
-	return fmt.Sprintf(
-		"%s-%s-%s",
-		info.Prefix,
-		core,
-		globalOptions.Current.CellId,
-	)
-}
-
-func typeInfo(typeName string) api.ResourceInfo {
-	return api.ResouceTypePrefix[typeName]
-}
-
-func sanitiseCore(core string) string {
-	return api.ResourceShortNameNonAllowedChars.ReplaceAllString(core, "")
 }
