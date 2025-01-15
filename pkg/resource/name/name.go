@@ -72,7 +72,7 @@ func ShortName(env api.EnvironmentContext) string {
 
 	sanitisedCore := sanitiseCore(core)
 
-	if len(sanitisedCore) < maxCoreLengh {
+	if len(sanitisedCore) <= maxCoreLengh {
 		return fmt.Sprintf(
 			"%s%s%s",
 			info.Prefix,

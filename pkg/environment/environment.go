@@ -39,6 +39,10 @@ func ensureRelatedValues(options *api.EnvironmentContextOptions, enforceTopDown 
 	ensureRegions(options, enforceTopDown)
 	ensureTenants(options, enforceTopDown)
 
+	if options.Stack == "" {
+		options.Stack = options.Project
+	}
+
 	if options.GitBaseBranchName == "" {
 		options.GitBaseBranchName = api.DefaultGitBaseBranchName
 	}

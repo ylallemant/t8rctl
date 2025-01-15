@@ -41,11 +41,21 @@ var rootCmd = &cobra.Command{
 		env := environment.FromOptions(envOptions, false)
 
 		if options.Current.OnlyVariance {
-			fmt.Println(namespace.Variance(env))
+			variance, err := namespace.Variance(env)
+			if err != nil {
+				return errors.Wrapf(err, "failed to generate namespace variance")
+			}
+
+			fmt.Println(variance)
 			return nil
 		}
 
-		fmt.Println(namespace.Name(env))
+		name, err := namespace.Name(env)
+		if err != nil {
+			return errors.Wrapf(err, "failed to generate namespace name")
+		}
+
+		fmt.Println(name)
 		return nil
 	},
 }

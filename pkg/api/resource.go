@@ -26,7 +26,7 @@ var ResouceTypePrefix = map[string]ResourceInfo{
 	},
 	"storage": {
 		Description: "data network storage in Azure cloud",
-		Prefix:      "sa",
+		Prefix:      "st",
 		ShortFormat: true,
 	},
 }
