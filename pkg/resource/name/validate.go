@@ -7,7 +7,7 @@ import (
 	globalOptions "github.com/ylallemant/t8rctl/pkg/cli/resource/options"
 )
 
-func validate() error {
+func Validate() error {
 	bools := 0
 
 	if options.Current.Core {
@@ -42,6 +42,14 @@ func validate() error {
 
 	if options.Current.Name == "" && options.Current.Static == "" {
 		return errors.Errorf("one of following inputs is manatory: \"name\" or \"static\"")
+	}
+
+	if options.Current.Name != "" && (globalOptions.Current.CellStage == "" || globalOptions.Current.Project == "") {
+		return errors.Errorf("using dynamic naming makes following values mandatory: \"project\" and \"cell-stage\"")
+	}
+
+	if options.Current.Caf && (globalOptions.Current.CellId == "") {
+		return errors.Errorf("requesting a CAF name makes some values mandatory: \"cell-id\"")
 	}
 
 	return nil
