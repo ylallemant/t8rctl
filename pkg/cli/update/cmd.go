@@ -8,7 +8,6 @@ import (
 	"encoding/hex"
 	"fmt"
 	"io"
-	"io/ioutil"
 	"net/http"
 	"os"
 	"path/filepath"
@@ -43,7 +42,7 @@ var rootCmd = &cobra.Command{
 		}
 		fmt.Println("current binary location", currentLocation)
 
-		tempDir, err := ioutil.TempDir(os.TempDir(), binaryName)
+		tempDir, err := os.MkdirTemp(os.TempDir(), binaryName)
 		if err != nil {
 			return errors.Wrapf(err, "failed to create temporary directory")
 		}
@@ -383,7 +382,7 @@ func calculateMD5(filePath string) (string, error) {
 }
 
 func readAsString(filepath string) (string, error) {
-	content, err := ioutil.ReadFile(filepath)
+	content, err := os.ReadFile(filepath)
 	if err != nil {
 		return "", errors.Wrapf(err, "failed to read file %s", filepath)
 	}
