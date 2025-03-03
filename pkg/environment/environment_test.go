@@ -127,7 +127,7 @@ func TestFromOptions(t *testing.T) {
 				ClusterGroup:      "ClusterGroup",
 				Stack:             "Stack",
 				GitRepository:     "GitRepository",
-				GitBranchName:     "GitBranchName",
+				GitBranchName:     "refs/heads/GitBranchName",
 				GitBranchHash:     "GitBranchHash",
 				GitBranchTag:      "GitBranchTag",
 				GitBaseBranchName: "GitBaseBranchName",

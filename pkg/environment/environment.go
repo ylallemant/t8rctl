@@ -1,6 +1,8 @@
 package environment
 
 import (
+	"strings"
+
 	"github.com/ylallemant/t8rctl/pkg/api"
 )
 
@@ -30,6 +32,10 @@ func FromOptions(options *api.EnvironmentContextOptions, enforceTopDown bool) ap
 	env.gitBranchHash = sanitiseValue(options.GitBranchHash)
 	env.gitBranchTag = sanitiseValue(options.GitBranchTag)
 	env.isGitBaseBranch = env.gitBranchName == env.gitBaseBranchName
+
+	if strings.HasPrefix(env.gitBranchName, "refs/heads/") {
+		env.gitBranchName = strings.ReplaceAll(env.gitBranchName, "refs/heads/", "")
+	}
 
 	return env
 }
