@@ -17,7 +17,7 @@ const (
 
 var (
 	branchPrefixRegexp     = regexp.MustCompile(`^([a-zA-Z0-9-_]+)\s*[/:].*`)
-	taskBranchRegexp       = regexp.MustCompile(`^([a-zA-Z]{0,5})[-]{0,1}(\d+)-.*`)
+	taskBranchRegexp       = regexp.MustCompile(`^([a-zA-Z]{0,5})[-_]{0,1}(\d+)-.*`)
 	namespaceNameMaxLength = 25
 )
 

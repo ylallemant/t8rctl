@@ -6,6 +6,7 @@ import (
 	"github.com/pkg/errors"
 	"github.com/spf13/cobra"
 	"github.com/spf13/pflag"
+	"github.com/ylallemant/t8rctl/pkg/api"
 	"github.com/ylallemant/t8rctl/pkg/cli/resource/namespace/options"
 	globalOptions "github.com/ylallemant/t8rctl/pkg/cli/resource/options"
 	"github.com/ylallemant/t8rctl/pkg/environment"
@@ -13,40 +14,45 @@ import (
 	"github.com/ylallemant/t8rctl/pkg/runtime"
 )
 
+const (
+	ErrorBadInput = "bad input"
+)
+
 var rootCmd = &cobra.Command{
 	Use:   "namespace",
 	Short: "generates a namespace name from environment information",
 	Long:  ``,
 	RunE: func(cmd *cobra.Command, args []string) error {
+		opts := readFlags(cmd.Flags())
 		provider := runtime.Providers.Get(globalOptions.Current.Provider)
 		if provider == nil {
 			return fmt.Errorf("provider \"%s\" not existing", provider.Type())
 		}
 
-		err := validate()
+		err := validate(opts)
 		if err != nil {
-			return errors.Wrapf(err, "bad input")
+			return errors.Wrapf(err, ErrorBadInput)
 		}
 
 		envOptions := environment.OptionsFromEnvvars()
 
-		envOptions.GitBranchName = options.Current.CurrentGitBranch
-		envOptions.GitBaseBranchName = options.Current.BaseGitBranch
+		envOptions.GitBranchName = opts.CurrentGitBranch
+		envOptions.GitBaseBranchName = opts.BaseGitBranch
 
 		envOptions.Project = globalOptions.Current.Project
-		envOptions.CellStage = globalOptions.Current.CellStage
-		envOptions.CellRegion = options.Current.Region
-		envOptions.CellTenant = options.Current.Tenant
+		envOptions.StackDatatier = globalOptions.Current.CellStage
+		envOptions.StackRegion = opts.Region
+		envOptions.StackTenant = opts.Tenant
 
 		env := environment.FromOptions(envOptions, false)
 
-		if options.Current.OnlyVariance {
+		if opts.OnlyVariance {
 			variance, err := namespace.Variance(env)
 			if err != nil {
 				return errors.Wrapf(err, "failed to generate namespace variance")
 			}
 
-			fmt.Println(variance)
+			fmt.Fprint(cmd.OutOrStdout(), variance)
 			return nil
 		}
 
@@ -55,17 +61,45 @@ var rootCmd = &cobra.Command{
 			return errors.Wrapf(err, "failed to generate namespace name")
 		}
 
-		fmt.Println(name)
+		fmt.Fprint(cmd.OutOrStdout(), name)
 		return nil
 	},
 }
 
+func readFlags(flags *pflag.FlagSet) *options.Options {
+	var err error
+	opts := options.NewOptions()
+
+	opts.BaseGitBranch, err = flags.GetString("branch-base")
+	if err != nil {
+		panic(err.Error())
+	}
+	opts.CurrentGitBranch, err = flags.GetString("branch-current")
+	if err != nil {
+		panic(err.Error())
+	}
+	opts.Region, err = flags.GetString("region")
+	if err != nil {
+		panic(err.Error())
+	}
+	opts.Tenant, err = flags.GetString("tenant")
+	if err != nil {
+		panic(err.Error())
+	}
+	opts.OnlyVariance, err = flags.GetBool("variance")
+	if err != nil {
+		panic(err.Error())
+	}
+
+	return opts
+}
+
 func init() {
-	rootCmd.PersistentFlags().BoolVar(&options.Current.OnlyVariance, "variance", options.Current.OnlyVariance, "only returns the variable part of the name")
-	rootCmd.PersistentFlags().StringVar(&options.Current.CurrentGitBranch, "branch-current", options.Current.CurrentGitBranch, "current git branch")
-	rootCmd.PersistentFlags().StringVar(&options.Current.BaseGitBranch, "branch-base", options.Current.BaseGitBranch, "git branch used for base environments")
-	rootCmd.PersistentFlags().StringVar(&options.Current.Tenant, "tenant", options.Current.Tenant, "resource tenant name")
-	rootCmd.PersistentFlags().StringVar(&options.Current.Region, "region", options.Current.Region, "resource region name")
+	rootCmd.PersistentFlags().Bool("variance", false, "only returns the variable part of the name")
+	rootCmd.PersistentFlags().String("branch-current", "", "current git branch")
+	rootCmd.PersistentFlags().String("branch-base", api.DefaultGitBaseBranchName, "git branch used for base environments")
+	rootCmd.PersistentFlags().String("tenant", api.DefaultTenant, "resource tenant name")
+	rootCmd.PersistentFlags().String("region", api.DefaultRegion, "resource region name")
 }
 
 func Command() *cobra.Command {

@@ -6,21 +6,28 @@ import (
 	globalOptions "github.com/ylallemant/t8rctl/pkg/cli/resource/options"
 )
 
-func validate() error {
-	if globalOptions.Current.CellStage == "" {
-		return errors.Errorf("providing the cell stage is mandatory")
-	}
+const (
+	ErrorMissingCellProject      = "providing the project name is mandatory"
+	ErrorMissingCellStage        = "providing the cell stage name is mandatory"
+	ErrorMissingBaseGitBranch    = "providing the base git branch name is mandatory"
+	ErrorMissingCurrentGitBranch = "providing the current git branch name is mandatory"
+)
 
+func validate(opts *options.Options) error {
 	if globalOptions.Current.Project == "" {
-		return errors.Errorf("providing the project name is mandatory")
+		return errors.Errorf(ErrorMissingCellProject)
 	}
 
-	if options.Current.CurrentGitBranch == "" {
-		return errors.Errorf("providing the current git branch is mandatory")
+	if globalOptions.Current.CellStage == "" {
+		return errors.Errorf(ErrorMissingCellStage)
 	}
 
-	if options.Current.BaseGitBranch == "" {
-		return errors.Errorf("providing the base git branch is mandatory")
+	if opts.BaseGitBranch == "" {
+		return errors.Errorf(ErrorMissingBaseGitBranch)
+	}
+
+	if opts.CurrentGitBranch == "" {
+		return errors.Errorf(ErrorMissingCurrentGitBranch)
 	}
 
 	return nil
