@@ -5,7 +5,7 @@
 ## Install
 
 ```sh
-curl -fsSL https://github.com/ylallemant/t8rctl/raw/0.0.9/install.sh | bash
+curl -fsSL https://github.com/ylallemant/t8rctl/raw/0.0.11/install.sh | bash
 ```
 
 ## Tests
