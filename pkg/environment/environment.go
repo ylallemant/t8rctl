@@ -27,17 +27,33 @@ func FromOptions(options *api.EnvironmentContextOptions, enforceTopDown bool) ap
 	env.stackRegion = sanitiseValue(options.StackRegion)
 	env.stackTenant = sanitiseValue(options.StackTenant)
 	env.gitRepository = sanitiseValue(options.GitRepository)
-	env.gitBranchName = sanitiseValue(options.GitBranchName)
-	env.gitBaseBranchName = sanitiseValue(options.GitBaseBranchName)
+	env.gitBranchName = sanitiseGitBranch(options.GitBranchName)
+	env.gitBaseBranchName = sanitiseGitBranch(options.GitBaseBranchName)
 	env.gitBranchHash = sanitiseValue(options.GitBranchHash)
-	env.gitBranchTag = sanitiseValue(options.GitBranchTag)
+	env.gitBranchTag = sanitiseGitTag(options.GitBranchTag)
 	env.isGitBaseBranch = env.gitBranchName == env.gitBaseBranchName
 
-	if strings.HasPrefix(env.gitBranchName, "refs/heads/") {
-		env.gitBranchName = strings.ReplaceAll(env.gitBranchName, "refs/heads/", "")
+	return env
+}
+
+func sanitiseGitTag(tag string) string {
+	tag = sanitiseValue(tag)
+
+	if strings.HasPrefix(tag, "refs/tags/") {
+		return strings.ReplaceAll(tag, "refs/tags/", "")
 	}
 
-	return env
+	return tag
+}
+
+func sanitiseGitBranch(branch string) string {
+	branch = sanitiseValue(branch)
+
+	if strings.HasPrefix(branch, "refs/heads/") {
+		return strings.ReplaceAll(branch, "refs/heads/", "")
+	}
+
+	return branch
 }
 
 func ensureRelatedValues(options *api.EnvironmentContextOptions, enforceTopDown bool) {
