@@ -6,6 +6,7 @@ import (
 	"sync"
 
 	"github.com/Azure/azure-sdk-for-go/sdk/keyvault/azsecrets"
+	"github.com/pkg/errors"
 	"github.com/ylallemant/t8rctl/pkg/api"
 	"github.com/ylallemant/t8rctl/pkg/providers/azure/credentials"
 )
@@ -125,7 +126,10 @@ func (i *VaultClient) connect(vaultName string) error {
 
 	url := fmt.Sprintf("https://%s.vault.azure.net", vaultName)
 
-	client := azsecrets.NewClient(url, credentials.Current, &azsecrets.ClientOptions{})
+	client, err := azsecrets.NewClient(url, credentials.Current, &azsecrets.ClientOptions{})
+	if err != nil {
+		return errors.Wrapf(err, "failed to initiate vault client for %s", vaultName)
+	}
 
 	i.clients[vaultName] = client
 	i.cache[vaultName] = make(map[string]string)

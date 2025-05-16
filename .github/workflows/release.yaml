@@ -29,7 +29,7 @@ jobs:
         github_token: ${{ secrets.GITHUB_TOKEN }}
         goos: ${{ matrix.goos }}
         goarch: ${{ matrix.goarch }}
-        goversion: "1.18"
+        goversion: "1.23"
         project_path: "./cmd/t8rctl"
         binary_name: "t8rctl"
         ldflags: -X github.com/ylallemant/t8rctl/pkg/version.GitCommit=${{github.sha}} -X github.com/ylallemant/t8rctl/pkg/version.Version=${{ github.ref_name }}
