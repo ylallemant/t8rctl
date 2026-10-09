@@ -1,7 +1,7 @@
 package aks
 
 import (
-	"github.com/Azure/azure-sdk-for-go/sdk/resourcemanager/containerservice/armcontainerservice"
+	"github.com/Azure/azure-sdk-for-go/sdk/resourcemanager/containerservice/armcontainerservice/v9"
 	"github.com/ylallemant/t8rctl/pkg/api"
 	"github.com/ylallemant/t8rctl/pkg/cluster"
 	"github.com/ylallemant/t8rctl/pkg/providers/azure/resourcegroup"

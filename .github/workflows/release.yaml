@@ -1,18 +1,35 @@
-# .github/workflows/release.yaml
+name: Release
 
 on:
   release:
     types: [created]
 
 permissions:
-    contents: write
-    packages: write
+  contents: read
 
 jobs:
+  verify:
+    name: Verify
+    runs-on: ubuntu-latest
+    outputs:
+      go-version: ${{ steps.go-version.outputs.version }}
+    steps:
+      - uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6
+      - uses: actions/setup-go@924ae3a1cded613372ab5595356fb5720e22ba16 # v6.5.0
+        with:
+          go-version-file: go.mod
+      - id: go-version
+        run: echo "version=$(go env GOVERSION | sed 's/^go//')" >> "$GITHUB_OUTPUT"
+      - run: go test -mod=vendor ./...
+
   releases-matrix:
     name: Release Go Binary
+    needs: verify
     runs-on: ubuntu-latest
+    permissions:
+      contents: write
     strategy:
+      fail-fast: false
       matrix:
         # build and publish in parallel: linux/386, linux/amd64, linux/arm64, windows/386, windows/amd64, darwin/amd64, darwin/arm64
         goos: [linux, windows, darwin]
@@ -23,14 +40,14 @@ jobs:
           - goarch: arm64
             goos: windows
     steps:
-    - uses: actions/checkout@v4
-    - uses: wangyoucao577/go-release-action@v1
+    - uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6
+    - uses: wangyoucao577/go-release-action@279495102627de7960cbc33434ab01a12bae144b # v1
       with:
         github_token: ${{ secrets.GITHUB_TOKEN }}
         goos: ${{ matrix.goos }}
         goarch: ${{ matrix.goarch }}
-        goversion: "1.23"
+        goversion: ${{ needs.verify.outputs.go-version }}
+        build_flags: "-mod=vendor"
         project_path: "./cmd/t8rctl"
         binary_name: "t8rctl"
         ldflags: -X github.com/ylallemant/t8rctl/pkg/version.GitCommit=${{github.sha}} -X github.com/ylallemant/t8rctl/pkg/version.Version=${{ github.ref_name }}
-        #extra_files: LICENSE README.md

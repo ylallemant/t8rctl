@@ -5,7 +5,7 @@ import (
 	"fmt"
 	"sync"
 
-	"github.com/Azure/azure-sdk-for-go/sdk/keyvault/azsecrets"
+	"github.com/Azure/azure-sdk-for-go/sdk/security/keyvault/azsecrets"
 	"github.com/pkg/errors"
 	"github.com/ylallemant/t8rctl/pkg/api"
 	"github.com/ylallemant/t8rctl/pkg/providers/azure/credentials"
@@ -48,7 +48,7 @@ func (i *VaultClient) List(vaultName string) (map[string]string, error) {
 			return keyvalue, err
 		}
 
-		pager := i.clients[vaultName].NewListSecretsPager(nil)
+		pager := i.clients[vaultName].NewListSecretPropertiesPager(nil)
 		for pager.More() {
 			page, err := pager.NextPage(context.TODO())
 			if err != nil {

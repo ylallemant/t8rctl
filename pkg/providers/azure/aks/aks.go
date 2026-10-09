@@ -6,7 +6,7 @@ import (
 	"sync"
 
 	"github.com/Azure/azure-sdk-for-go/sdk/azcore/arm"
-	"github.com/Azure/azure-sdk-for-go/sdk/resourcemanager/containerservice/armcontainerservice"
+	"github.com/Azure/azure-sdk-for-go/sdk/resourcemanager/containerservice/armcontainerservice/v9"
 	"github.com/pkg/errors"
 	"github.com/ylallemant/t8rctl/pkg/api"
 	"github.com/ylallemant/t8rctl/pkg/cache"
@@ -127,14 +127,14 @@ func (i *AksClient) PurgeCache() error {
 }
 
 func (i *AksClient) List(subs api.AccountManager) ([]api.Cluster, error) {
-	if len(i.cache) > 0 {
+	if !global.Current.DisableCache && len(i.cache) > 0 {
 		i.mux.RLock()
 		defer i.mux.RUnlock()
 
 		return i.cache, nil
 	}
 
-	if i.fsCache.Valid() && !global.Current.DisableCache {
+	if !global.Current.DisableCache && i.fsCache.Valid() {
 		err := i.cacheRead()
 		if err != nil {
 			return i.cache, errors.Wrapf(err, "could not read cache file %s", i.fsCache.Path())
@@ -148,13 +148,14 @@ func (i *AksClient) List(subs api.AccountManager) ([]api.Cluster, error) {
 		return i.cache, errors.Wrap(err, "could fetch account list")
 	}
 
+	i.clients = make([]*armcontainerservice.ManagedClustersClient, 0, len(subscriptions))
 	for _, currSub := range subscriptions {
 		clusterClient, err := armcontainerservice.NewManagedClustersClient(currSub.Id(), credentials.Current, &arm.ClientOptions{})
 		if err != nil {
 			return nil, errors.Wrapf(err, "error fetching aks information for subscription \"%s\"", currSub.Name())
 		}
 
-		Current.clients = append(Current.clients, clusterClient)
+		i.clients = append(i.clients, clusterClient)
 	}
 
 	clusters := make([]Cluster, 0)

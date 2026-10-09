@@ -12,6 +12,7 @@ import (
 	globalOptions "github.com/ylallemant/t8rctl/pkg/cli/cluster/options"
 	"github.com/ylallemant/t8rctl/pkg/cli/cluster/ps/options"
 	"github.com/ylallemant/t8rctl/pkg/cluster"
+	"github.com/ylallemant/t8rctl/pkg/global"
 	"github.com/ylallemant/t8rctl/pkg/runtime"
 )
 
@@ -20,9 +21,10 @@ var rootCmd = &cobra.Command{
 	Short: "list running clusters",
 	Long:  ``,
 	RunE: func(cmd *cobra.Command, args []string) error {
+		global.Current.DisableCache = globalOptions.Current.DisableCache
 		provider := runtime.Providers.Get(globalOptions.Current.Provider)
 		if provider == nil {
-			return fmt.Errorf("provider \"%s\" not existing", provider.Type())
+			return fmt.Errorf("provider \"%s\" not existing", globalOptions.Current.Provider)
 		}
 
 		filter := filterFromFlags()

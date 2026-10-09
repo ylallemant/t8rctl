@@ -17,7 +17,7 @@ import (
 
 	t8rctl_runtime "github.com/ylallemant/t8rctl/pkg/runtime"
 
-	"github.com/google/go-github/github"
+	"github.com/google/go-github/v92/github"
 	"github.com/pkg/errors"
 	"github.com/spf13/cobra"
 	"github.com/spf13/pflag"
@@ -174,7 +174,10 @@ func Command() *cobra.Command {
 func listReleases() ([]*github.RepositoryRelease, error) {
 	fmt.Printf("list releases for repo %s/%s\n", owner, repo)
 
-	client := github.NewClient(nil)
+	client, err := github.NewClient()
+	if err != nil {
+		return nil, errors.Wrap(err, "failed to initialize GitHub client")
+	}
 
 	releases, _, err := client.Repositories.ListReleases(context.Background(), owner, repo, nil)
 
@@ -227,7 +230,7 @@ func latest(releases []*github.RepositoryRelease) *github.RepositoryRelease {
 func matchingBinary(release *github.RepositoryRelease) (*github.ReleaseAsset, bool) {
 	for _, asset := range release.Assets {
 		if checkForMatchingAsset(asset.GetName(), false) {
-			return &asset, true
+			return asset, true
 		}
 	}
 
@@ -237,7 +240,7 @@ func matchingBinary(release *github.RepositoryRelease) (*github.ReleaseAsset, bo
 func matchingChecksum(release *github.RepositoryRelease) (*github.ReleaseAsset, bool) {
 	for _, asset := range release.Assets {
 		if checkForMatchingAsset(asset.GetName(), true) {
-			return &asset, true
+			return asset, true
 		}
 	}
 

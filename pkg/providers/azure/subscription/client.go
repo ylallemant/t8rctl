@@ -129,14 +129,14 @@ func (i *SubscriptionClient) Provider() string {
 }
 
 func (i *SubscriptionClient) List() ([]api.Account, error) {
-	if len(i.cache) > 0 {
+	if !global.Current.DisableCache && len(i.cache) > 0 {
 		i.mux.RLock()
 		defer i.mux.RUnlock()
 
 		return i.cache, nil
 	}
 
-	if i.fsCache.Valid() && !global.Current.DisableCache {
+	if !global.Current.DisableCache && i.fsCache.Valid() {
 		err := i.cacheRead()
 		if err != nil {
 			return i.cache, errors.Wrapf(err, "could not read cache file %s", i.fsCache.Path())
